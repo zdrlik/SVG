@@ -5,10 +5,10 @@ using System.Globalization;
 
 namespace Svg
 {
-	//just overrrides canconvert and returns true
-	public class BaseConverter : TypeConverter
+    //just overrrides canconvert and returns true
+    public class BaseConverter : TypeConverter
     {
-     	
+
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             if (sourceType == typeof(string))
@@ -29,47 +29,47 @@ namespace Svg
             return base.CanConvertTo(context, destinationType);
         }
     }
-	
-	public sealed class SvgBoolConverter : BaseConverter
-	{
-		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-		{
-			if (value == null)
-			{
-				return true;
-			}
-			
-			if (!(value is string))
-			{
-				throw new ArgumentOutOfRangeException("value must be a string.");
-			}
 
-			// Note: currently only used by SvgVisualElement.Visible but if
-			// conversion is used elsewhere these checks below will need to change
-			string visibility = (string)value;
-			if ((visibility == "hidden") || (visibility == "collapse"))
-				return false;
-			else
-				return true;
+    public sealed class SvgBoolConverter : BaseConverter
+    {
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        {
+            if (value == null)
+            {
+                return true;
+            }
+
+            if (!(value is string))
+            {
+                throw new ArgumentOutOfRangeException("value must be a string.");
+            }
+
+            // Note: currently only used by SvgVisualElement.Visible but if
+            // conversion is used elsewhere these checks below will need to change
+            string visibility = (string)value;
+            if ((visibility == "hidden") || (visibility == "collapse"))
+                return false;
+            else
+                return true;
         }
-		
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == typeof(string))
             {
-            	return ((bool)value) ? "visible" : "hidden";
+                return ((bool)value) ? "visible" : "hidden";
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
-        }	
-	}
-	
-	//converts enums to lower case strings
-	public class EnumBaseConverter<T> : BaseConverter
+        }
+    }
+
+    //converts enums to lower case strings
+    public class EnumBaseConverter<T> : BaseConverter
         where T : struct
     {
         /// <summary>If specified, upon conversion, the default value will result in 'null'.</summary>
-        public T? DefaultValue { get; protected set;}
+        public T? DefaultValue { get; protected set; }
 
         /// <summary>Creates a new instance.</summary>
         public EnumBaseConverter() { }
@@ -83,25 +83,25 @@ namespace Svg
 
         /// <summary>Attempts to convert the provided value to <typeparamref name="T"/>.</summary>
 		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-		{
-			if (value == null)
-			{
+        {
+            if (value == null)
+            {
                 if (this.DefaultValue.HasValue)
                     return this.DefaultValue.Value;
-                
-				return Activator.CreateInstance(typeof(T));
-			}
-			
-			if (!(value is string))
-			{
-				throw new ArgumentOutOfRangeException("value must be a string.");
-			}
 
-			return (T)Enum.Parse(typeof(T), (string)value, true);
+                return Activator.CreateInstance(typeof(T));
+            }
+
+            if (!(value is string))
+            {
+                throw new ArgumentOutOfRangeException("value must be a string.");
+            }
+
+            return (T)Enum.Parse(typeof(T), (string)value, true);
         }
-		
+
         /// <summary>Attempts to convert the value to the destination type.</summary>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == typeof(string) && value is T)
             {
@@ -111,38 +111,39 @@ namespace Svg
                 else
                 {
                     //SVG attributes should be camelCase.
+                    // string stringValue = ((T)value).ToString();                    
+                    // stringValue = string.Format("{0}{1}", stringValue[0].ToString().ToLower(), stringValue.Substring(1));
+
                     string stringValue = ((T)value).ToString();
-
-                    stringValue = string.Format("{0}{1}", stringValue[0].ToString().ToLower(), stringValue.Substring(1));
-
+                    stringValue = String.Concat(stringValue[0].ToString().ToLower(), stringValue.Substring(1));
                     return stringValue;
                 }
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
-        }	
-	}
-	
+        }
+    }
+
     public sealed class SvgFillRuleConverter : EnumBaseConverter<SvgFillRule>
     {
         public SvgFillRuleConverter() : base(SvgFillRule.NonZero) { }
     }
-	
+
     public sealed class SvgColourInterpolationConverter : EnumBaseConverter<SvgColourInterpolation>
     {
         public SvgColourInterpolationConverter() : base(SvgColourInterpolation.SRGB) { }
     }
-    
+
     public sealed class SvgClipRuleConverter : EnumBaseConverter<SvgClipRule>
     {
         public SvgClipRuleConverter() : base(SvgClipRule.NonZero) { }
     }
-    
+
     public sealed class SvgTextAnchorConverter : EnumBaseConverter<SvgTextAnchor>
     {
         public SvgTextAnchorConverter() : base(SvgTextAnchor.Start) { }
     }
-    
+
     public sealed class SvgStrokeLineCapConverter : EnumBaseConverter<SvgStrokeLineCap>
     {
         public SvgStrokeLineCapConverter() : base(SvgStrokeLineCap.Butt) { }
@@ -153,35 +154,35 @@ namespace Svg
         public SvgStrokeLineJoinConverter() : base(SvgStrokeLineJoin.Miter) { }
     }
 
-	public sealed class SvgMarkerUnitsConverter : EnumBaseConverter<SvgMarkerUnits>
-	{
+    public sealed class SvgMarkerUnitsConverter : EnumBaseConverter<SvgMarkerUnits>
+    {
         public SvgMarkerUnitsConverter() : base(SvgMarkerUnits.StrokeWidth) { }
-	}
+    }
 
-	public sealed class SvgFontStyleConverter : EnumBaseConverter<SvgFontStyle>
-	{
+    public sealed class SvgFontStyleConverter : EnumBaseConverter<SvgFontStyle>
+    {
         public SvgFontStyleConverter() : base(SvgFontStyle.All) { }
-	}
+    }
 
-	public sealed class SvgOverflowConverter : EnumBaseConverter<SvgOverflow>
-	{
+    public sealed class SvgOverflowConverter : EnumBaseConverter<SvgOverflow>
+    {
         public SvgOverflowConverter() : base(SvgOverflow.Auto) { }
-	}
+    }
 
-	public sealed class SvgTextLengthAdjustConverter : EnumBaseConverter<SvgTextLengthAdjust>
-	{
+    public sealed class SvgTextLengthAdjustConverter : EnumBaseConverter<SvgTextLengthAdjust>
+    {
         public SvgTextLengthAdjustConverter() : base(SvgTextLengthAdjust.Spacing) { }
-	}
+    }
 
-	public sealed class SvgTextPathMethodConverter : EnumBaseConverter<SvgTextPathMethod>
-	{
+    public sealed class SvgTextPathMethodConverter : EnumBaseConverter<SvgTextPathMethod>
+    {
         public SvgTextPathMethodConverter() : base(SvgTextPathMethod.Align) { }
-	}
+    }
 
-	public sealed class SvgTextPathSpacingConverter : EnumBaseConverter<SvgTextPathSpacing>
-	{
+    public sealed class SvgTextPathSpacingConverter : EnumBaseConverter<SvgTextPathSpacing>
+    {
         public SvgTextPathSpacingConverter() : base(SvgTextPathSpacing.Exact) { }
-	}
+    }
 
     public sealed class SvgFontVariantConverter : EnumBaseConverter<SvgFontVariant>
     {
@@ -191,7 +192,7 @@ namespace Svg
         {
             if (value.ToString() == "small-caps")
                 return SvgFontVariant.Smallcaps;
-            
+
             return base.ConvertFrom(context, culture, value);
         }
 
@@ -201,7 +202,7 @@ namespace Svg
             {
                 return "small-caps";
             }
-            
+
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }
@@ -223,9 +224,9 @@ namespace Svg
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (value.ToString() == "line-through") 
+            if (value.ToString() == "line-through")
                 return SvgTextDecoration.LineThrough;
-            
+
             return base.ConvertFrom(context, culture, value);
         }
 
@@ -285,7 +286,7 @@ namespace Svg
         }
     }
 
-    public static class Enums 
+    public static class Enums
     {
         public static bool TryParse<TEnum>(string value, out TEnum result) where TEnum : struct, IConvertible
         {
