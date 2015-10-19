@@ -15,11 +15,21 @@ namespace Svg
     {
         public override string ToString()
         {
-            string ret = "";
-            foreach (var unit in this)
-            {
-                ret += unit.ToString() + " ";
-            }
+            //string ret = "";
+            //foreach (var unit in this)
+            //{
+            //    ret += unit.ToString() + " ";
+            //}
+
+            string ret;
+
+            var count = this.Count;
+            if (count == 0)
+                ret = String.Empty;
+            else if (count == 1)
+                ret = this[0].ToString();
+            else
+                ret = string.Join(" ", this.Select(item => item.ToString()));            
 
             return ret;
         }
