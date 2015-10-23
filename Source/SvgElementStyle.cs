@@ -381,6 +381,9 @@ namespace Svg
 
         public static object ValidateFontFamily(string fontFamilyList, SvgDocument doc)
         {
+            if (fontFamilyList == null)
+                return System.Drawing.FontFamily.GenericSansSerif;
+
             // Split font family list on "," and then trim start and end spaces and quotes.
             var fontParts = (fontFamilyList ?? "").Split(new[] { ',' }).Select(fontName => fontName.Trim(new[] { '"', ' ', '\'' }));
             var families = System.Drawing.FontFamily.Families;
@@ -391,7 +394,9 @@ namespace Svg
             //styles from IE get sent through as lowercase.
             foreach (var f in fontParts)
             {
-                if (doc.FontDefns().TryGetValue(f, out sFaces)) return sFaces;
+                // ZD: hack needed
+                if (doc != null && doc.FontDefns().TryGetValue(f, out sFaces))
+                    return sFaces;
 
                 family = families.FirstOrDefault(ff => ff.Name.ToLower() == f.ToLower());
                 if (family != null) return family;

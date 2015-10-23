@@ -335,21 +335,33 @@ namespace Svg
                 }
             }
 
-            foreach (var node in GetContentNodes())
+            // HACK: ZD - try to use Text property prior ContentNodes 
+            if (!string.IsNullOrEmpty(this.Text))
             {
-                SvgTextBase textNode = node as SvgTextBase;
-
-                if (textNode == null)
+                state.DrawString(PrepareText(this.Text));
+            }
+            else
+            {
+                var nodes = GetContentNodes();
+                if (nodes.Any())
                 {
-                    if (!string.IsNullOrEmpty(node.Content)) state.DrawString(PrepareText(node.Content));
-                }
-                else
-                {
-                    TextDrawingState newState= new TextDrawingState(state, textNode);
+                    foreach (var node in nodes)
+                    {
+                        SvgTextBase textNode = node as SvgTextBase;
 
-                    textNode.SetPath(newState);
-                    state.NumChars += newState.NumChars;
-                    state.Current = newState.Current;
+                        if (textNode == null)
+                        {
+                            if (!string.IsNullOrEmpty(node.Content)) state.DrawString(PrepareText(node.Content));
+                        }
+                        else
+                        {
+                            TextDrawingState newState = new TextDrawingState(state, textNode);
+
+                            textNode.SetPath(newState);
+                            state.NumChars += newState.NumChars;
+                            state.Current = newState.Current;
+                        }
+                    }
                 }
             }
 
