@@ -575,7 +575,10 @@ namespace Svg
         {
 
             var xmlWriter = new XmlTextWriter(stream, Encoding.UTF8);
-            xmlWriter.Formatting = Formatting.Indented;
+            
+            // ZD: don't use intended formatting 
+            // xmlWriter.Formatting = Formatting.Indented;
+            xmlWriter.Formatting = Formatting.None;
 
             xmlWriter.WriteDocType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null);
             
